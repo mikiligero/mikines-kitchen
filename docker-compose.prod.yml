@@ -1,0 +1,20 @@
+services:
+  mikines-kitchen:
+    # Replace 'tu-usuario' with your actual GitHub username (lowercase)
+    # The workflow pushes to ghcr.io/OWNER/mikines-kitchen:latest
+    # You will need to update this image name in your Proxmox/Portainer setup
+    image: ghcr.io/mikiligero/mikines-kitchen:latest
+    container_name: mikines-kitchen
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist the SQLite database
+      - ./data/dev.db:/app/prisma/dev.db
+      # Persist the uploaded images
+      - ./public/uploads:/app/public/uploads
+    environment:
+      - DATABASE_URL="file:./prisma/dev.db"
+      # Add other environment variables here if needed
+      # - NEXTAUTH_SECRET=...
+      # - NEXTAUTH_URL=...

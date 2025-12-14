@@ -1,0 +1,17 @@
+services:
+  mikines-kitchen:
+    container_name: mikines-kitchen
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist the SQLite database
+      - ./data/dev.db:/app/prisma/dev.db
+      # Persist the uploaded images
+      - ./public/uploads:/app/public/uploads
+    environment:
+      # Ensure Prisma knows where to find the DB
+      - DATABASE_URL="file:./prisma/dev.db"
