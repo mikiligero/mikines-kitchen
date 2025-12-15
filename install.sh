@@ -52,9 +52,10 @@ if [ -d "$INSTALL_DIR" ]; then
         git remote add origin "$REPO_URL"
         git fetch --all
         
-        # OJO: Esto sobrescribirá archivos del repo, pero RESPETARÁ .env y dev.db (que están en .gitignore)
+        # OJO: Esto sobrescribirá archivos del repo, pero RESPETARÁ .env y dev.db
         git reset --hard origin/main
-        git branch --set-upstream-to=origin/main main
+        # Forzamos estar en la rama main trackeando origin/main
+        git checkout -B main origin/main
     else
         # Actualización normal
         git pull
