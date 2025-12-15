@@ -43,8 +43,22 @@ if [ -d "$INSTALL_DIR" ]; then
     
     cd "$INSTALL_DIR"
     
-    # Traemos los cambios del repo (incluido este script y update.sh)
-    git pull
+    # Auto-repair: Si la carpeta existe pero se borró .git (o se copió a mano)
+    if [ ! -d ".git" ]; then
+        echo -e "${YELLOW}⚠️  Instalación detectada sin repositorio Git. Reparando...${NC}"
+        
+        # Inicializar git y forzar sincronización con el repo
+        git init
+        git remote add origin "$REPO_URL"
+        git fetch --all
+        
+        # OJO: Esto sobrescribirá archivos del repo, pero RESPETARÁ .env y dev.db (que están en .gitignore)
+        git reset --hard origin/main
+        git branch --set-upstream-to=origin/main main
+    else
+        # Actualización normal
+        git pull
+    fi
     
     # Aseguramos permisos de ejecución
     chmod +x init.sh update.sh backup/*.sh
