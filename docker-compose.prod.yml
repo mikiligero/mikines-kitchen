@@ -9,12 +9,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # Persist the SQLite database
-      - ./data/dev.db:/app/prisma/dev.db
-      # Persist the uploaded images
+      - ./data:/app/data
       - ./public/uploads:/app/public/uploads
     environment:
-      - DATABASE_URL="file:./prisma/dev.db"
-      # Add other environment variables here if needed
-      # - NEXTAUTH_SECRET=...
-      # - NEXTAUTH_URL=...
+      - DATABASE_URL=file:./data/dev.db

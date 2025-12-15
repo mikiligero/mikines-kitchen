@@ -38,11 +38,6 @@ sh get-docker.sh
 mkdir -p /opt/mikines-kitchen
 cd /opt/mikines-kitchen
 
-# IMPORTANTE: Dar permisos totales a las carpetas de datos
-# (Para evitar errores de permisos con el usuario del contenedor)
-mkdir -p ./data ./public/uploads
-chmod -R 777 ./data ./public/uploads
-
 # 3. Login en GitHub (Necesitas tu Token 'read:packages')
 docker login ghcr.io -u mikiligero
 # (Pega tu token cuando pida password)
@@ -61,10 +56,12 @@ services:
     restart: always
     ports:
       - "3000:3000"
-    # SIN VOLUMENES: Todo es efímero (Cero problemas de permisos)
+    volumes:
+      - ./data:/app/data
+      - ./public/uploads:/app/public/uploads
     environment:
-      # Guardamos la DB en /tmp o /app/data interno
-      - DATABASE_URL=file:/tmp/dev.db
+      # Configuración estándar para SQLite en Docker
+      - DATABASE_URL=file:./data/dev.db
 EOF
 ```
 
@@ -74,37 +71,10 @@ EOF
 docker compose up -d
 ```
 
-3. **IMPORTANTE**: Inicializa la base de datos (solo la primera vez o tras borrar contenedor):
+3. **IMPORTANTE**: Inicializa la base de datos (solo la primera vez):
 
 ```bash
-docker compose exec mikines-kitchen npx prisma@5.22.0 migrate deploy
+docker compose exec mikines-kitchen npx prisma migrate deploy
 ```
 
----
-
-## ⚠️ GESTIÓN DE BACKUPS (CRÍTICO)
-
-Como no usamos volúmenes, **si borras el contenedor pierdes los datos**.
-Antes de actualizar la versión de la app, **TIENES** que sacar los datos fuera.
-
-### 1. Hacer Copia de Seguridad (Sacar datos al Host)
-```bash
-# Copia la base de datos del contenedor a tu carpeta actual del host
-docker cp mikines-kitchen:/tmp/dev.db ./backup_dev.db
-
-# Copia las imágenes subidas
-docker cp mikines-kitchen:/app/public/uploads ./backup_uploads
-```
-
-### 2. Restaurar Copia (Meter datos al Contenedor)
-Si actualizas y está vacío, así recuperas lo guardado:
-```bash
-# Restaurar DB
-docker cp ./backup_dev.db mikines-kitchen:/tmp/dev.db
-
-# Restaurar Imágenes
-docker cp ./backup_uploads/. mikines-kitchen:/app/public/uploads/
-
-# Asegurar permisos tras restaurar
-docker compose exec -u root mikines-kitchen chown -R 1001:1001 /tmp/dev.db /app/public/uploads
-```
+¡Listo! Tu web estará en `http://TU-IP:3000`.
