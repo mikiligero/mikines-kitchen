@@ -1,9 +1,10 @@
 services:
   mikines-kitchen:
+    image: ghcr.io/mikiligero/mikines-kitchen:latest
     container_name: mikines-kitchen
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     restart: always
     ports:
       - "3000:3000"
