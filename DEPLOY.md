@@ -34,7 +34,7 @@ Puedes instalar o actualizar la aplicación con **un solo comando** (estilo Prox
 Copia y pega esto en la consola de tu contenedor LXC:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/mikiligero/mikines-kitchen/main/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/mikiligero/mikines-kitchen/main/install.sh?v=$(date +%s))"
 ```
 
 **Este comando mágico hace todo:**
