@@ -3,13 +3,21 @@
 Esta guía asume que usas un contenedor **Proxmox LXC Privilegiado** con Docker instalado.
 La aplicación se despliega en modo **Stateless** (sin volúmenes persistentes) para evitar problemas de permisos con ZFS. La persistencia de datos se gestiona mediante scripts automáticos de backup/restore.
 
-## 📋 1. Requisitos Previos
+## �️ 0. Preparar el Sistema (LXC Nuevo)
 
-1.  **LXC Container**: Debe ser **Unprivileged = No** (Privilegiado) y con **FUSE** activado en opciones.
-2.  **Docker**: Instalado en el contenedor.
-3.  **Git**: Para clonar este repositorio.
+Si tu contenedor está recién creado, ejecuta esto primero para tener todo listo:
 
-## 🚀 2. Instalación y Actualización (Método Automático)
+```bash
+# Actualizar sistema e instalar herramientas básicas
+apt update && apt upgrade -y
+apt install -y curl git
+
+# Instalar Docker (Script oficial)
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+```
+
+## 🚀 1. Instalación y Actualización (Método Automático)
 
 Puedes instalar o actualizar la aplicación con **un solo comando** (estilo Proxmox Scripts).
 Copia y pega esto en la consola de tu contenedor LXC:
