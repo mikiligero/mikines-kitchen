@@ -53,4 +53,7 @@ echo "Step 5/5: 🏗️  Aplicando migraciones pendientes..."
 docker compose exec mikines-kitchen npx prisma@5.22.0 migrate deploy
 
 echo "---------------------------------------"
+# Intentar obtener la IP real
+HOST_IP=$(hostname -I | awk '{print $1}')
 echo "✅ Actualización completada con éxito."
+echo "👉 Accede en: http://$HOST_IP:3000"

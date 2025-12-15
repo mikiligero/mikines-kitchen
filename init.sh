@@ -20,6 +20,10 @@ else
     exit 1
 fi
 
+# Intentar obtener la IP real (la primera que no sea local)
+HOST_IP=$(hostname -I | awk '{print $1}')
+
 echo "---------------------------------------"
-echo "🎉 ¡Listo! Accede en http://TU_IP:3000"
+echo "🎉 ¡Listo! Mikines Kitchen ya está cocinando."
+echo "👉 Accede en: http://$HOST_IP:3000"
 echo "ℹ️  Recuerda crear el usuario Admin en el primer login."
