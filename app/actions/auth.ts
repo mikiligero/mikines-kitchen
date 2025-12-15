@@ -32,7 +32,8 @@ export async function login(formData: FormData) {
     const cookieStore = await cookies()
     cookieStore.set('session', session, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        // Allow HTTP for local network production deployments
+        secure: false, // process.env.NODE_ENV === 'production',
         expires,
         sameSite: 'lax'
     })
@@ -115,7 +116,7 @@ export async function createFirstUser(formData: FormData) {
     const cookieStore = await cookies()
     cookieStore.set('session', session, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Disabling secure for LAN deployment
         expires,
         sameSite: 'lax'
     })
