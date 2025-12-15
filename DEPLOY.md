@@ -87,17 +87,32 @@ docker compose exec mikines-kitchen npx prisma@5.22.0 migrate deploy
 Como no usamos volúmenes, **si borras el contenedor pierdes los datos**.
 Antes de actualizar la versión de la app, **TIENES** que sacar los datos fuera.
 
-### 1. Hacer Copia de Seguridad (Sacar datos al Host)
-```bash
-# Copia la base de datos del contenedor a tu carpeta actual del host
-docker cp mikines-kitchen:/tmp/dev.db ./backup_dev.db
 
-# Copia las imágenes subidas
+### 1. Script Automático (Recomendado)
+He incluido scripts en la carpeta `backup/` para facilitar esto.
+
+**Hacer Backup:**
+```bash
+./backup/backup.sh
+```
+*(Crea una carpeta en `backups/YYYYMMDD_HHMMSS` con la DB y las fotos)*
+
+**Restaurar:**
+```bash
+./backup/restore.sh ./backups/20251215_203000
+```
+*(Restaura todo y ajusta permisos automáticamente)*
+
+### 2. Método Manual
+Si prefieres hacerlo a mano:
+
+**Backup:**
+```bash
+docker cp mikines-kitchen:/tmp/dev.db ./backup_dev.db
 docker cp mikines-kitchen:/app/public/uploads ./backup_uploads
 ```
 
-### 2. Restaurar Copia (Meter datos al Contenedor)
-Si actualizas y está vacío, así recuperas lo guardado:
+**Restaurar:**
 ```bash
 # Restaurar DB
 docker cp ./backup_dev.db mikines-kitchen:/tmp/dev.db
@@ -107,4 +122,5 @@ docker cp ./backup_uploads/. mikines-kitchen:/app/public/uploads/
 
 # Asegurar permisos tras restaurar
 docker compose exec -u root mikines-kitchen chown -R 1001:1001 /tmp/dev.db /app/public/uploads
+docker compose restart
 ```

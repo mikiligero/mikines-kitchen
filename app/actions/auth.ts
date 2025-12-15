@@ -80,3 +80,45 @@ export async function changePassword(formData: FormData) {
 
     return { success: true }
 }
+
+export async function checkAnyUserExists() {
+    try {
+        const count = await prisma.user.count()
+        return count > 0
+    } catch (e) {
+        return false
+    }
+}
+
+export async function createFirstUser(formData: FormData) {
+    const count = await prisma.user.count()
+    if (count > 0) return { error: 'Ya existe un administrador' }
+
+    const username = formData.get('username') as string
+    const password = formData.get('password') as string
+
+    if (!username || !password) return { error: 'Rellena todos los campos' }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    const user = await prisma.user.create({
+        data: { username, password: hashedPassword }
+    })
+
+    // Create session (Same logic as login)
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 1 day
+    const session = await new SignJWT({ userId: user.id, username: user.username })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setExpirationTime('24h')
+        .sign(key)
+
+    const cookieStore = await cookies()
+    cookieStore.set('session', session, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        expires,
+        sameSite: 'lax'
+    })
+
+    return { success: true }
+}
