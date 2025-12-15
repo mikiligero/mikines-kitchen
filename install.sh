@@ -43,23 +43,22 @@ if [ -d "$INSTALL_DIR" ]; then
     
     cd "$INSTALL_DIR"
     
-    # Auto-repair: Si la carpeta existe pero se borró .git (o se copió a mano)
+    # Auto-repair & Enforce State logic
+    # 1. Asegurar que es un repo git
     if [ ! -d ".git" ]; then
-        echo -e "${YELLOW}⚠️  Instalación detectada sin repositorio Git. Reparando...${NC}"
-        
-        # Inicializar git y forzar sincronización con el repo
+        echo -e "${YELLOW}⚠️  Reparando repositorio Git...${NC}"
         git init
         git remote add origin "$REPO_URL"
-        git fetch --all
-        
-        # OJO: Esto sobrescribirá archivos del repo, pero RESPETARÁ .env y dev.db
-        git reset --hard origin/main
-        # Forzamos estar en la rama main trackeando origin/main
-        git checkout -B main origin/main
-    else
-        # Actualización normal
-        git pull
     fi
+
+    # 2. Asegurar que tenemos la última info
+    echo "⬇️  Actualizando código..."
+    git fetch origin --tags --force
+
+    # 3. Forzar estar en main y coincidir con el remoto
+    # Esto arregla si estabas en 'master', 'detached head', o si 'pull' fallaba
+    git checkout -B main origin/main
+    git reset --hard origin/main
     
     # Aseguramos permisos de ejecución
     chmod +x init.sh update.sh backup/*.sh
