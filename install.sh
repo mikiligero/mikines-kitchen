@@ -13,6 +13,25 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# Función para asegurar configuración
+ensure_env() {
+    if [ ! -f .env ]; then
+        echo -e "${BLUE}⚙️  Generando configuración (.env)...${NC}"
+        echo "DATABASE_URL=file:/tmp/dev.db" > .env
+    fi
+
+    # Si falta JWT_SECRET, lo añadimos (incluso si el fichero ya existía)
+    if ! grep -q "JWT_SECRET=" .env; then
+        echo -e "${YELLOW}🔑 Añadiendo JWT_SECRET faltante a .env...${NC}"
+        if command -v openssl &> /dev/null; then
+            SECRET=$(openssl rand -hex 32)
+        else
+            SECRET="secret_$(date +%s)"
+        fi
+        echo "JWT_SECRET=$SECRET" >> .env
+    fi
+}
+
 echo -e "${BLUE}=======================================${NC}"
 echo -e "${BLUE}   🧑‍🍳 Mikines Kitchen Installer      ${NC}"
 echo -e "${BLUE}=======================================${NC}"
@@ -63,6 +82,9 @@ if [ -d "$INSTALL_DIR" ]; then
     # Aseguramos permisos de ejecución
     chmod +x init.sh update.sh backup/*.sh
     
+    # Aseguramos .env antes de nada
+    ensure_env
+
     # Delegamos en el script de actualización robusto
     ./update.sh
 
@@ -79,23 +101,7 @@ else
     git clone "$REPO_URL" "$INSTALL_DIR"
     cd "$INSTALL_DIR"
     
-    # Configuración Automática de .env
-    if [ ! -f .env ]; then
-        echo -e "${BLUE}⚙️  Generando configuración (.env)...${NC}"
-        
-        # Generar secreto aleatorio
-        if command -v openssl &> /dev/null; then
-            JWT_SECRET=$(openssl rand -hex 32)
-        else
-            JWT_SECRET="secret_$(date +%s)"
-        fi
-        
-        cat <<EOF > .env
-DATABASE_URL=file:/tmp/dev.db
-JWT_SECRET=$JWT_SECRET
-EOF
-        echo "✅ .env creado con secreto único."
-    fi
+    ensure_env
     
     # Permisos
     chmod +x init.sh update.sh backup/*.sh
