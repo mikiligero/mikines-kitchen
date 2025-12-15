@@ -12,14 +12,19 @@ if [ -z "$(docker ps -a -q -f name=mikines-kitchen)" ]; then
     echo "⚠️  No se encontró el contenedor 'mikines-kitchen'. Saltando backup..."
     SKIP_RESTORE=true
 else
-    # 1. Backup Previo
-    echo "Step 1/5: 🛡️  Haciendo backup de seguridad..."
-    ./backup/backup.sh "$UPDATE_ID"
+    # 1. Comprobar si hay base de datos válida para salvar
+    if docker exec mikines-kitchen test -f /tmp/dev.db; then
+        echo "Step 1/5: 🛡️  Haciendo backup de seguridad..."
+        ./backup/backup.sh "$UPDATE_ID"
 
-    # Verificamos que el backup existe antes de borrar nada
-    if [ ! -f "$BACKUP_PATH/dev.db" ]; then
-        echo "❌ ERROR CRÍTICO: El backup falló. Cancelando actualización para proteger tus datos."
-        exit 1
+        # Verificamos integridad del backup
+        if [ ! -f "$BACKUP_PATH/dev.db" ]; then
+            echo "❌ ERROR CRÍTICO: El backup falló. Cancelando actualización para proteger tus datos."
+            exit 1
+        fi
+    else
+        echo "⚠️  Contenedor encontrado pero sin base de datos (/tmp/dev.db). Saltando backup (Modo Reparación)..."
+        SKIP_RESTORE=true
     fi
 fi
 
