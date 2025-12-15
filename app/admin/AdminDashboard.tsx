@@ -42,16 +42,16 @@ export function AdminDashboard({ categories }: AdminDashboardProps) {
                             Categorías
                         </button>
                         <button
-                            onClick={() => setActiveTab('backups')}
+                            onClick={() => setActiveTab('settings')}
                             className={cn(
                                 "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                                activeTab === 'backups'
+                                activeTab === 'settings'
                                     ? "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400"
                                     : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                             )}
                         >
-                            <Database size={18} />
-                            Copias de Seguridad
+                            <Sliders size={18} />
+                            Apariencia
                         </button>
                         <button
                             onClick={() => setActiveTab('maintenance')}
@@ -66,16 +66,16 @@ export function AdminDashboard({ categories }: AdminDashboardProps) {
                             Mantenimiento
                         </button>
                         <button
-                            onClick={() => setActiveTab('settings')}
+                            onClick={() => setActiveTab('backups')}
                             className={cn(
                                 "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                                activeTab === 'settings'
+                                activeTab === 'backups'
                                     ? "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400"
                                     : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                             )}
                         >
-                            <Sliders size={18} />
-                            Apariencia
+                            <Database size={18} />
+                            Copias de Seguridad
                         </button>
                     </nav>
                 </div>
