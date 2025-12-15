@@ -9,53 +9,28 @@ La aplicación se despliega en modo **Stateless** (sin volúmenes persistentes) 
 2.  **Docker**: Instalado en el contenedor.
 3.  **Git**: Para clonar este repositorio.
 
-## 🚀 2. Instalación (Primera vez)
+## 🚀 2. Instalación y Actualización (Método Automático)
 
-Sigue estos pasos si es la primera vez que arrancas la app:
+Puedes instalar o actualizar la aplicación con **un solo comando** (estilo Proxmox Scripts).
+Copia y pega esto en la consola de tu contenedor LXC:
 
-1.  **Clonar repositorio y entrar:**
-    ```bash
-    git clone https://github.com/mikiligero/mikines-kitchen.git /opt/mikines-kitchen
-    cd /opt/mikines-kitchen
-    ```
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/mikiligero/mikines-kitchen/main/install.sh)"
+```
 
-2.  **Configurar entorno:**
-    Crea el fichero `.env` (puedes copiar el de ejemplo si existe, o usar estos valores):
-    ```bash
-    nano .env
-    ```
-    *Contenido:*
-    ```env
-    DATABASE_URL=file:/tmp/dev.db
-    JWT_SECRET=tu_secreto_super_seguro
-    ```
-
-3.  **Iniciar:**
-    Usa el script de inicialización. Arrancará el contenedor y creará la base de datos.
-    ```bash
-    chmod +x init.sh update.sh backup/*.sh
-    ./init.sh
-    ```
-
-4.  **Configurar Admin:**
-    Entra en `http://TU_IP:3000`. Verás la pantalla de bienvenida para crear el primer usuario administrador.
+**Este comando mágico hace todo:**
+- Si **NO** tienes la app: La descarga, configura el `.env` automáticamente y la arranca.
+- Si **YA** tienes la app: Hace backup, descarga la nueva versión y actualiza sin perder datos.
 
 ---
 
-## 🔄 3. Actualizar Versión (Mantenimiento)
+### ¿Qué hace por debajo?
+Básicamente automatiza lo que antes hacíamos a mano:
+1.  Clona/Actualiza el repo en `/opt/mikines-kitchen`.
+2.  Genera secretos si hace falta.
+3.  Ejecuta `./init.sh` (instalación) o `./update.sh` (actualización).
 
-Cuando haya una nueva versión de la app (imagen Docker), **NO** hagas `docker compose down/up` manualmente o perderás los datos. Usa siempre el script de actualización:
-
-```bash
-./update.sh
-```
-
-**¿Qué hace este script?**
-1.  🛡️ **Backup**: Guarda tu BD y fotos en `./backups/FECHA`.
-2.  📥 **Pull**: Descarga la última versión de la imagen.
-3.  ♻️ **Restart**: Reinicia el contenedor (la BD se borra aquí).
-4.  💾 **Restore**: Restaura tus datos automáticamente.
-5.  🏗️ **Migrate**: Aplica cambios de esquema si los hay.
+¡Más fácil imposible! ⚡
 
 ---
 
