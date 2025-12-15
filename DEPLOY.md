@@ -1,9 +1,20 @@
 # 🐳 Mikines Kitchen - Guía de Despliegue (LXC Stateless)
 
 Esta guía asume que usas un contenedor **Proxmox LXC Privilegiado** con Docker instalado.
+
+## 📋 1. Requisitos Previos
+
+> [!IMPORTANT]
+> **REQUISITO CRÍTICO:** El contenedor LXC **TIENE** que ser **PRIVILEGIADO** (`Unprivileged container: No`).
+> Si usas un contenedor "Unprivileged" (por defecto en Proxmox), **Docker fallará** o tendrás problemas de permisos.
+>
+> *Opciones > Features > Nesting = ON* también es recomendable.
+
+1.  **LXC Container**: Privilegiado (Unprivileged = No).
+2.  **Docker**: Instalado en el contenedor.
 La aplicación se despliega en modo **Stateless** (sin volúmenes persistentes) para evitar problemas de permisos con ZFS. La persistencia de datos se gestiona mediante scripts automáticos de backup/restore.
 
-## �️ 0. Preparar el Sistema (LXC Nuevo)
+## ️ 0. Preparar el Sistema (LXC Nuevo)
 
 Si tu contenedor está recién creado, ejecuta esto primero para tener todo listo:
 
