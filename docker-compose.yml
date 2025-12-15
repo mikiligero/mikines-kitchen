@@ -6,9 +6,10 @@ services:
     #   context: .
     #   dockerfile: Dockerfile
     restart: always
-    privileged: true # Bypass LXC sysctl restrictions
-    ports:
-      - "3000:3000"
+    # privileged: true  <-- Didn't work, removing
+    network_mode: "host" # Bypass network namespace issues in LXC
+    # ports:
+    #   - "3000:3000" <--- Not needed with host mode
     # volumes:
     #   # Persist the SQLite database
     #   - ./data/dev.db:/app/prisma/dev.db
