@@ -25,5 +25,6 @@ export async function uploadImage(formData: FormData): Promise<string | null> {
 
     await fs.writeFile(filepath, buffer)
 
-    return `/uploads/${filename}`
+    // Return the API URL instead of the static public URL
+    return `/api/uploads/${filename}`
 }
