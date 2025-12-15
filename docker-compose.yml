@@ -6,6 +6,7 @@ services:
     #   context: .
     #   dockerfile: Dockerfile
     restart: always
+    privileged: true # Bypass LXC sysctl restrictions
     ports:
       - "3000:3000"
     # volumes:
