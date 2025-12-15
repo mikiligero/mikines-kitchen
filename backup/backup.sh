@@ -4,7 +4,7 @@
 echo "📦 Iniciando copia de seguridad..."
 
 # Crear carpeta de backups con fecha
-DATE=$(date +%Y%m%d_%H%M%S)
+DATE=${1:-$(date +%Y%m%d_%H%M%S)}
 BACKUP_DIR="./backups/$DATE"
 mkdir -p "$BACKUP_DIR"
 
