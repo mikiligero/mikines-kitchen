@@ -38,9 +38,22 @@ export function BackupManager() {
             try {
                 const formData = new FormData()
                 formData.append('backup', selectedFile)
-                await restoreBackupFromZip(formData)
+
+                const response = await fetch('/api/backup/restore', {
+                    method: 'POST',
+                    body: formData,
+                })
+
+                if (!response.ok) {
+                    const error = await response.json()
+                    throw new Error(error.error || 'Restore failed')
+                }
+
                 setStatus({ type: 'success', message: 'Restauración completada con éxito. Las imágenes y datos han sido recuperados.' })
                 setSelectedFile(null)
+
+                // Refresh the page to show new data
+                window.location.reload()
             } catch (error) {
                 console.error(error)
                 setStatus({ type: 'error', message: 'Error al restaurar: asegúrate de que el archivo ZIP es válido.' })

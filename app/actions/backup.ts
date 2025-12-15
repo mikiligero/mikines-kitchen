@@ -34,10 +34,18 @@ export async function getBackupData(): Promise<BackupData> {
 
 export async function restoreBackupFromZip(formData: FormData) {
     const file = formData.get('backup') as File
-    if (!file) throw new Error('No backup file provided')
+
+    if (!file) {
+        throw new Error('No backup file provided')
+    }
 
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+
+    await performRestoreFromZip(buffer)
+}
+
+export async function performRestoreFromZip(buffer: Buffer) {
     const zip = new AdmZip(buffer)
 
     // 1. Extract and Restore Database
@@ -133,6 +141,8 @@ export async function restoreBackup(data: BackupData) {
                     servings: recipe.servings,
                     prepTime: recipe.prepTime,
                     cookTime: recipe.cookTime,
+                    rating: recipe.rating,
+                    notes: recipe.notes,
                     imagePath: recipe.imagePath,
                     createdAt: recipe.createdAt,
                     updatedAt: recipe.updatedAt,
