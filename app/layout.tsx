@@ -7,6 +7,9 @@ import { Providers } from "./providers";
 export const metadata: Metadata = {
   title: "Mikines Kitchen",
   description: "Your personal recipe keeper",
+  other: {
+    "darkreader-lock": "true",
+  },
 };
 
 export default function RootLayout({

@@ -19,6 +19,7 @@ export function Header() {
                             alt="Mikines Kitchen Logo"
                             fill
                             className="object-cover"
+                            suppressHydrationWarning
                         />
                     </div>
                     <span className="font-bold text-xl tracking-tight text-zinc-900 dark:text-zinc-100">

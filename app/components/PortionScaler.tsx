@@ -11,13 +11,26 @@ interface PortionScalerProps {
 }
 
 export function PortionScaler({ initialServings, ingredients, className }: PortionScalerProps) {
-    const [servings, setServings] = useState(initialServings)
+    const [servings, setServings] = useState(initialServings || 1) // Default to 1 if 0/undefined
 
     const scale = (amount: number) => {
         if (!amount) return 0
-        const scaled = (amount / initialServings) * servings
+        const scaled = (amount / (initialServings || 1)) * servings
         // Format to avoiding long decimals: round to 2 decimals
         return Math.round(scaled * 100) / 100
+    }
+
+    const handleAmountChange = (baseAmount: number, newAmountStr: string) => {
+        const newAmount = parseFloat(newAmountStr)
+        if (isNaN(newAmount) || newAmount < 0) return
+
+        // Calculate needed servings to get this amount
+        // newAmount = (baseAmount / initialServings) * newServings
+        // newServings = (newAmount * initialServings) / baseAmount
+        const newServings = (newAmount * (initialServings || 1)) / baseAmount
+
+        // Round to 2 decimals to avoid floating point weirdness but keep precision
+        setServings(Math.round(newServings * 100) / 100)
     }
 
     return (
@@ -29,14 +42,16 @@ export function PortionScaler({ initialServings, ingredients, className }: Porti
                     <Users size={16} className="text-zinc-500" />
                     <div className="flex items-center gap-2">
                         <button
-                            onClick={() => setServings(Math.max(1, servings - 1))}
+                            onClick={() => setServings(Math.max(1, Math.floor(servings) - 1))}
                             className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
                         >
                             <Minus size={14} />
                         </button>
-                        <span className="font-medium min-w-[3ch] text-center">{servings}</span>
+                        <span className="font-medium min-w-[4ch] text-center">
+                            {Number.isInteger(servings) ? servings : servings.toFixed(2)}
+                        </span>
                         <button
-                            onClick={() => setServings(servings + 1)}
+                            onClick={() => setServings(Math.floor(servings) + 1)}
                             className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
                         >
                             <Plus size={14} />
@@ -47,13 +62,24 @@ export function PortionScaler({ initialServings, ingredients, className }: Porti
 
             <ul className={`space-y-3 ${className}`}>
                 {ingredients.map((ing) => (
-                    <li key={ing.id} className="flex items-start justify-between py-2 border-b border-zinc-100 dark:border-zinc-800 last:border-0">
-                        <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                    <li key={ing.id} className="flex items-center justify-between py-2 border-b border-zinc-100 dark:border-zinc-800 last:border-0 group">
+                        <span className="font-medium text-zinc-700 dark:text-zinc-300 flex-1 mr-4">
                             {ing.name}
                         </span>
-                        <span className="text-purple-600 font-semibold whitespace-nowrap ml-4">
-                            {ing.amount > 0 ? scale(ing.amount) : ''} {ing.unit}
-                        </span>
+                        <div className="flex items-center gap-1 text-purple-600 font-semibold whitespace-nowrap">
+                            {ing.amount > 0 ? (
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="any"
+                                    className="w-16 bg-transparent text-right border-b border-transparent hover:border-purple-200 focus:border-purple-500 focus:outline-none transition-colors appearance-none -moz-appearance-textfield [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                    value={scale(ing.amount)}
+                                    onChange={(e) => handleAmountChange(ing.amount, e.target.value)}
+                                    onClick={(e) => e.currentTarget.select()}
+                                />
+                            ) : null}
+                            <span>{ing.unit}</span>
+                        </div>
                     </li>
                 ))}
             </ul>

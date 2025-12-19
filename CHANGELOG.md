@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.7.0] - 2025-12-19
+
+### Features
+-   **Interactive Scaling**: Ingredient quantities in the recipe view are now editable.
+    -   Changing an ingredient amount automatically recalculates the servings and scales all other ingredients.
+    -   Servings display now supports decimal values for precision (e.g., 4.5 servings).
+
+### Fixes
+-   **Hydration Errors**: Fixed hydration mismatch errors caused by browser extensions (like Dark Reader) by enforcing `darkreader-lock` and suppressing warnings on critical elements.
+
 ## [v0.6.0] - 2025-12-19
 
 ### Features
