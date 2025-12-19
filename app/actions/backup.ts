@@ -33,6 +33,9 @@ export async function getBackupData(): Promise<BackupData> {
 }
 
 export async function restoreBackupFromZip(formData: FormData) {
+    // This server action is kept for backward compatibility or non-streaming usage
+    // tailored to use the internal logic but without the streaming response directly here
+    // unless we change how we call it. For the streaming API, we will use performRestoreFromZip directly.
     const file = formData.get('backup') as File
 
     if (!file) {
@@ -45,29 +48,46 @@ export async function restoreBackupFromZip(formData: FormData) {
     await performRestoreFromZip(buffer)
 }
 
-export async function performRestoreFromZip(buffer: Buffer) {
+export async function performRestoreFromZip(buffer: Buffer, onProgress?: (message: string) => void) {
+    const log = (msg: string) => {
+        if (onProgress) onProgress(msg)
+        console.log(`[Restore] ${msg}`)
+    }
+
+    log('Iniciando proceso de restauración...')
     const zip = new AdmZip(buffer)
 
     // 1. Extract and Restore Database
+    log('Extrayendo archivo backup.json...')
     const jsonEntry = zip.getEntry('backup.json')
-    if (!jsonEntry) throw new Error('Invalid backup: missing backup.json')
+    if (!jsonEntry) {
+        log('ERROR: No se encontró backup.json en el archivo ZIP')
+        throw new Error('Invalid backup: missing backup.json')
+    }
 
     const jsonContent = zip.readAsText(jsonEntry)
+    log('Analizando contenido JSON...')
     const data: BackupData = JSON.parse(jsonContent)
 
-    await restoreBackup(data)
+    await restoreBackup(data, onProgress)
 
     // 2. Extract Images
+    log('Preparando restauración de imágenes...')
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
 
     // Ensure dir exists
     try {
         await fs.access(uploadsDir)
     } catch {
+        log('Creando directorio public/uploads...')
         await fs.mkdir(uploadsDir, { recursive: true })
     }
 
     const entries = zip.getEntries()
+    const imageEntries = entries.filter(e => !e.isDirectory && e.entryName.startsWith('uploads/'))
+    log(`Encontradas ${imageEntries.length} imágenes para restaurar...`)
+
+    let imageCount = 0
     for (const entry of entries) {
         if (!entry.isDirectory && entry.entryName.startsWith('uploads/')) {
             const fileName = path.basename(entry.entryName)
@@ -75,34 +95,54 @@ export async function performRestoreFromZip(buffer: Buffer) {
             if (fileName && fileName !== 'uploads') {
                 const targetPath = path.join(uploadsDir, fileName)
                 await fs.writeFile(targetPath, entry.getData())
+                imageCount++
+                if (imageCount % 10 === 0) {
+                    log(`Restauradas ${imageCount} imágenes...`)
+                }
             }
         }
     }
+    log(`Restauración de imágenes completada. Total: ${imageCount}`)
+    log('Proceso de restauración finalizado exitosamente.')
 }
 
-export async function restoreBackup(data: BackupData) {
+export async function restoreBackup(data: BackupData, onProgress?: (message: string) => void) {
+    const log = (msg: string) => {
+        if (onProgress) onProgress(msg)
+    }
+
     if (!data.version || !data.categories || !data.recipes) {
+        log('ERROR: Formato de archivo inválido')
         throw new Error('Invalid backup file format')
     }
 
+    log(`Versión del backup: ${data.version}`)
+    log(`Fecha del backup: ${data.generatedAt}`)
+
     // Execute in transaction to ensure integrity
+    log('Iniciando transacción de base de datos...')
     await prisma.$transaction(async (tx) => {
         // 1. Clear existing data
-        // Delete recipes first (cascades to ingredients)
+        log('Limpiando base de datos actual...')
+
+        log('Eliminando ingredientes...')
         await tx.ingredient.deleteMany()
+
+        log('Eliminando recetas...')
         await tx.recipe.deleteMany()
 
         // Disconnect categories from recipes (technically handled by recipe deletion but good to be safe if m-n is implicit)
         // Actually implicit m-n table entries are deleted when recipe is deleted.
 
-        // Delete categories
+        log('Eliminando categorías...')
         await tx.category.deleteMany()
 
-        // Delete users
+        log('Eliminando usuarios...')
         await tx.user.deleteMany()
 
         // 2. Restore Users (if present)
         if (data.users) {
+            log(`Restaurando ${data.users.length} usuarios...`)
             for (const user of data.users) {
                 await tx.user.create({
                     data: {
@@ -117,6 +157,7 @@ export async function restoreBackup(data: BackupData) {
         // 2. Restore Categories
         // We use createMany if possible, but SQLite might have limits.
         // Also we want to preserve IDs.
+        log(`Restaurando ${data.categories.length} categorías...`)
         for (const cat of data.categories) {
             await tx.category.create({
                 data: {
@@ -127,6 +168,7 @@ export async function restoreBackup(data: BackupData) {
         }
 
         // 3. Restore Recipes
+        log(`Restaurando ${data.recipes.length} recetas...`)
         for (const recipe of data.recipes) {
             // We need to reconstruct the create payload
             // connect categories by ID
@@ -161,6 +203,7 @@ export async function restoreBackup(data: BackupData) {
             })
         }
     })
+    log('Base de datos restaurada correctamente.')
 
     revalidatePath('/')
     revalidatePath('/admin')

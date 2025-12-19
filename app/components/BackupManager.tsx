@@ -9,6 +9,7 @@ export function BackupManager() {
     const [isPending, startTransition] = useTransition()
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [logs, setLogs] = useState<string[]>([])
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -25,14 +26,18 @@ export function BackupManager() {
 
         setSelectedFile(file)
         setStatus(null)
+        setLogs([])
     }
 
-    const handleRestore = () => {
+    const handleRestore = async () => {
         if (!selectedFile) return
 
         if (!confirm('¡ADVERTENCIA!\n\nEsta acción BORRARÁ todos los datos actuales (recetas, categorías e IMÁGENES) y los reemplazará con los datos de la copia de seguridad.\n\n¿Estás seguro de que quieres continuar?')) {
             return
         }
+
+        setLogs(['Iniciando conexión con el servidor...'])
+        setStatus(null)
 
         startTransition(async () => {
             try {
@@ -45,20 +50,57 @@ export function BackupManager() {
                 })
 
                 if (!response.ok) {
-                    const error = await response.json()
-                    throw new Error(error.error || 'Restore failed')
+                    throw new Error(`HTTP error! status: ${response.status}`)
                 }
 
-                setStatus({ type: 'success', message: 'Restauración completada con éxito. Las imágenes y datos han sido recuperados.' })
-                setSelectedFile(null)
+                if (!response.body) {
+                    throw new Error('No response body')
+                }
 
-                // Refresh the page to show new data
-                window.location.reload()
-            } catch (error) {
+                const reader = response.body.getReader()
+                const decoder = new TextDecoder()
+                let buffer = ''
+
+                while (true) {
+                    const { done, value } = await reader.read()
+                    if (done) break
+
+                    buffer += decoder.decode(value, { stream: true })
+                    const lines = buffer.split('\n')
+                    buffer = lines.pop() || ''
+
+                    for (const line of lines) {
+                        if (!line.trim()) continue
+                        try {
+                            const data = JSON.parse(line)
+                            if (data.message) {
+                                setLogs(prev => [...prev, data.message])
+                            }
+                            if (data.error) {
+                                throw new Error(data.error)
+                            }
+                            if (data.success) {
+                                setStatus({ type: 'success', message: 'Restauración completada con éxito. Las imágenes y datos han sido recuperados.' })
+                                // Remove auto-reload to let user see logs
+                                // setTimeout(() => window.location.reload(), 2000)
+                            }
+                        } catch (e: any) {
+                            // If it's the error we threw above, rethrow it
+                            if (e.message && logs.includes(e.message)) throw e
+                            // Otherwise ignore parse errors
+                        }
+                    }
+                }
+
+            } catch (error: any) {
                 console.error(error)
-                setStatus({ type: 'error', message: 'Error al restaurar: asegúrate de que el archivo ZIP es válido.' })
+                setStatus({ type: 'error', message: error.message || 'Error al restaurar: asegúrate de que el archivo ZIP es válido.' })
             }
         })
+    }
+
+    const handleReload = () => {
+        window.location.reload()
     }
 
     return (
@@ -119,6 +161,33 @@ export function BackupManager() {
                             </span>
                         )}
                     </div>
+
+                    {/* Log Viewer */}
+                    {logs.length > 0 && (
+                        <div className="bg-zinc-950 text-green-400 font-mono text-xs p-4 rounded-lg border border-zinc-800 space-y-2">
+                            <div className="h-48 overflow-y-auto space-y-1">
+                                {logs.map((log, i) => (
+                                    <div key={i} className="flex gap-2">
+                                        <span className="text-zinc-600 select-none">[{new Date().toLocaleTimeString()}]</span>
+                                        <span>{log}</span>
+                                    </div>
+                                ))}
+                                {isPending && <div className="animate-pulse">_</div>}
+                            </div>
+
+                            {!isPending && status?.type === 'success' && (
+                                <div className="pt-2 border-t border-zinc-800 flex justify-end">
+                                    <button
+                                        onClick={handleReload}
+                                        className="text-xs bg-green-900/30 text-green-400 hover:bg-green-900/50 px-3 py-1.5 rounded transition-colors flex items-center gap-2"
+                                    >
+                                        <CheckCircle size={12} />
+                                        Finalizar y Recargar
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {status && (
                         <div className={cn(

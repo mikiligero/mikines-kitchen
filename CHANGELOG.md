@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.5.0] - 2025-12-19
+
+### Features
+-   **Restore Logging**: Added real-time log viewer during backup restore.
+    -   Shows detailed progress of actions (extracting, restoring database, images).
+    -   Streamed response for instant feedback.
+-   **Restore UX**: Improved restore experience.
+    -   Removed auto-reload to allow reading logs.
+    -   Added manual "Finalizar y Recargar" button.
+
 ## [v0.4.1] - 2025-12-19
 
 ### Features
