@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 
-export type RecipeWithRelations = Awaited<ReturnType<typeof getRecipes>>[number]
+export type RecipeWithRelations = Awaited<ReturnType<typeof getRecipes>>['recipes'][number]
 
 export async function getRecipes(options: {
     query?: string
@@ -11,8 +11,11 @@ export async function getRecipes(options: {
     time?: string
     sort?: string
     rating?: string | number
+    page?: number
+    limit?: number
 } = {}) {
-    const { query, category, time, sort, rating } = options
+    const { query, category, time, sort, rating, page = 1, limit = 50 } = options
+    const skip = (page - 1) * limit
 
     const where: any = {}
 
@@ -38,46 +41,91 @@ export async function getRecipes(options: {
         }
     }
 
-    // Fetch base results
-    const recipes = await prisma.recipe.findMany({
-        where,
-        include: {
-            ingredients: true,
-            categories: true,
-        },
-        orderBy: {
-            createdAt: 'desc', // Default sort for initial fetch
-        },
-    })
+    // Determine sort order
+    let orderBy: any = { createdAt: 'desc' }
+    if (sort === 'oldest') orderBy = { createdAt: 'asc' }
+    // 'newest' is default
+    // 'fastest' needs special handling if not using DB sort, but for DB sort we can't easily sort by sum.
 
-    // Filter by Time (Client-side logic on server)
-    let filtered = recipes
-    if (time) {
-        filtered = recipes.filter(r => {
-            const totalTime = (r.prepTime || 0) + (r.cookTime || 0)
-            if (time === 'short') return totalTime < 30
-            if (time === 'medium') return totalTime >= 30 && totalTime <= 60
-            if (time === 'long') return totalTime > 60
-            return true
+    // If we have 'time' filter or 'fastest' sort, we must fetch all matching records to process in memory
+    // because we can't easily query/sort by (prepTime + cookTime) in standard Prisma without raw SQL.
+    // Otherwise, we use efficient DB pagination.
+    const needsInMemoryProcessing = !!time || sort === 'fastest'
+
+    if (needsInMemoryProcessing) {
+        // Fetch ALL matching candidates
+        const allRecipes = await prisma.recipe.findMany({
+            where,
+            include: {
+                ingredients: true,
+                categories: true,
+            },
+            orderBy: sort !== 'fastest' ? orderBy : undefined,
         })
-    }
 
-    // Sort
-    if (sort) {
-        if (sort === 'oldest') {
-            filtered.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-        } else if (sort === 'newest') {
-            filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-        } else if (sort === 'fastest') {
-            filtered.sort((a, b) => {
+        let processed = allRecipes
+
+        // Filter by Time
+        if (time) {
+            processed = processed.filter(r => {
+                const totalTime = (r.prepTime || 0) + (r.cookTime || 0)
+                if (time === 'short') return totalTime < 30
+                if (time === 'medium') return totalTime >= 30 && totalTime <= 60
+                if (time === 'long') return totalTime > 60
+                return true
+            })
+        }
+
+        // Sort by fastest
+        if (sort === 'fastest') {
+            processed.sort((a, b) => {
                 const timeA = (a.prepTime || 0) + (a.cookTime || 0)
                 const timeB = (b.prepTime || 0) + (b.cookTime || 0)
                 return timeA - timeB
             })
         }
-    }
 
-    return filtered
+        const totalCount = processed.length
+        const totalPages = Math.ceil(totalCount / limit)
+        const paginatedRecipes = processed.slice(skip, skip + limit)
+
+        return {
+            recipes: paginatedRecipes,
+            metadata: {
+                totalCount,
+                totalPages,
+                currentPage: page,
+                limit
+            }
+        }
+    } else {
+        // Efficient DB Pagination
+        const [recipes, totalCount] = await prisma.$transaction([
+            prisma.recipe.findMany({
+                where,
+                include: {
+                    ingredients: true,
+                    categories: true,
+                },
+                orderBy,
+                skip,
+                take: limit,
+            }),
+            prisma.recipe.count({ where })
+        ])
+
+        const totalPages = Math.ceil(totalCount / limit)
+
+        return {
+            recipes,
+            metadata: {
+                totalCount,
+                totalPages,
+                currentPage: page,
+                limit
+            }
+        }
+    }
 }
 
 export async function getRecipe(id: string) {

@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.6.0] - 2025-12-19
+
+### Features
+-   **Pagination**: Implemented pagination for the recipe list.
+    -   Limits display to 50 recipes per page to improve performance with large datasets.
+    -   Added "Previous" and "Next" navigation controls.
+    -   Maintains filter context (search, category, etc.) while navigating pages.
+
 ## [v0.5.0] - 2025-12-19
 
 ### Features

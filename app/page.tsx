@@ -6,12 +6,32 @@ import { FilterPanel } from './components/FilterPanel'
 import { FilterTrigger } from './components/FilterTrigger'
 import { FilterProvider } from './components/FilterContext'
 import { ViewToggle, ViewMode } from './components/ViewToggle'
+import { Pagination } from './components/Pagination'
 import { Utensils } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ q?: string, category?: string, time?: string, sort?: string, view?: string, rating?: string }> }) {
-  const { q, category, time, sort, view, rating } = await searchParams
-  const recipes = await getRecipes({ query: q, category, time, sort, rating })
+export default async function Home({ searchParams }: { searchParams: Promise<{ q?: string, category?: string, time?: string, sort?: string, view?: string, rating?: string, page?: string }> }) {
+  const { q, category, time, sort, view, rating, page } = await searchParams
+  const currentPage = Number(page) || 1
+
+  // getRecipes now returns an object { recipes, metadata } OR an array (if I did not update all signatures)
+  // Wait, I updated the function to return an object if I changed the logic correctly.
+  // BUT I see I might have missed updating the type usage or fallback for 'getRecipes'.
+  // Let's assume my previous edit was correct and it returns { recipes, metadata }.
+  // Wait, I updated "getRecipes" to always return { recipes, metadata } in the `else` branch too?
+  // Let's check my previous edit to `actions/recipes.ts`.
+  // Yes, I updated both branches.
+
+  const { recipes, metadata } = await getRecipes({
+    query: q,
+    category,
+    time,
+    sort,
+    rating,
+    page: currentPage,
+    limit: 50
+  })
+
   const categories = await getCategories()
 
   const currentView = (view as ViewMode) || 'grid-md'
@@ -39,7 +59,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
               <Suspense>
                 <SearchBar />
               </Suspense>
-              <p className="text-zinc-500 text-xs mt-1 text-right">{recipes.length} recetas encontradas</p>
+              <p className="text-zinc-500 text-xs mt-1 text-right">
+                {metadata.totalCount} recetas encontradas
+              </p>
             </div>
           </div>
         </div>
@@ -66,14 +88,18 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
             </p>
           </div>
         ) : (
-          <div className={getListClass()}>
-            {recipes.map((recipe: import('@/app/actions/recipes').RecipeWithRelations) => (
-              <RecipeCard
-                key={recipe.id}
-                recipe={recipe}
-                variant={currentView === 'rows-grid' ? 'row' : currentView}
-              />
-            ))}
+          <div className="space-y-8">
+            <div className={getListClass()}>
+              {recipes.map((recipe: import('@/app/actions/recipes').RecipeWithRelations) => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  variant={currentView === 'rows-grid' ? 'row' : currentView}
+                />
+              ))}
+            </div>
+
+            <Pagination totalPages={metadata.totalPages} currentPage={metadata.currentPage} />
           </div>
         )}
       </div>
