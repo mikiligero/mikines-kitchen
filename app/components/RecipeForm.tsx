@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { CategorySelector } from './CategorySelector'
 import { StarRating } from './StarRating'
 import { ImageSearchModal } from './ImageSearchModal'
+import { ImageCropper } from './ImageCropper'
 
 const JSON_TEMPLATE = {
     "title": "Recipe Name",
@@ -60,6 +61,10 @@ export function RecipeForm({ initialData }: RecipeFormProps) {
     const [imageFile, setImageFile] = useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.imagePath ?? null)
 
+    // Cropper State
+    const [showCropper, setShowCropper] = useState(false)
+    const [cropImageSrc, setCropImageSrc] = useState<string | null>(null)
+
     const addIngredient = () => {
         setIngredients([...ingredients, { name: '', amount: '', unit: '' }])
     }
@@ -79,9 +84,24 @@ export function RecipeForm({ initialData }: RecipeFormProps) {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0]
-            setImageFile(file)
-            setPreviewUrl(URL.createObjectURL(file))
+            const url = URL.createObjectURL(file)
+            setCropImageSrc(url)
+            setShowCropper(true)
+            e.target.value = '' // Allow selecting same file again
         }
+    }
+
+    const handleCropComplete = (croppedBlob: Blob) => {
+        const file = new File([croppedBlob], "cropped-image.jpg", { type: "image/jpeg" })
+        setImageFile(file)
+        setPreviewUrl(URL.createObjectURL(file))
+        setShowCropper(false)
+        setCropImageSrc(null)
+    }
+
+    const handleCropCancel = () => {
+        setShowCropper(false)
+        setCropImageSrc(null)
     }
 
     const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -454,6 +474,14 @@ export function RecipeForm({ initialData }: RecipeFormProps) {
                 {isPending ? <Loader2 className="animate-spin" /> : <Save size={18} />}
                 {isPending ? "Guardando Receta..." : "Guardar Receta"}
             </button>
+
+            {showCropper && cropImageSrc && (
+                <ImageCropper
+                    imageSrc={cropImageSrc}
+                    onCropComplete={handleCropComplete}
+                    onCancel={handleCropCancel}
+                />
+            )}
 
             <ImageSearchModal
                 isOpen={showImageSearch}
