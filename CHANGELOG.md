@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.8.2] - 2025-12-19
+
+### Tweaks
+-   **Ingredient Colors**: Reverted ingredient names to white/gray in dark mode for better contrast, keeping only the quantity/unit in the new light purple color.
+
 ## [v0.8.1] - 2025-12-19
 
 ### Tweaks
