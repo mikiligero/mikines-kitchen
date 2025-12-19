@@ -21,10 +21,10 @@ export async function login(formData: FormData) {
     if (!isValid) return { error: 'Credenciales inválidas' }
 
     // Create session
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 1 day
+    const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 365 days
     const session = await new SignJWT({ userId: user.id, username: user.username })
         .setProtectedHeader({ alg: 'HS256' })
-        .setExpirationTime('24h')
+        .setExpirationTime('365d')
         .sign(key)
 
     // Set cookie
@@ -106,11 +106,11 @@ export async function createFirstUser(formData: FormData) {
         data: { username, password: hashedPassword }
     })
 
-    // Create session (Same logic as login)
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 1 day
+    // Create session
+    const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 365 days
     const session = await new SignJWT({ userId: user.id, username: user.username })
         .setProtectedHeader({ alg: 'HS256' })
-        .setExpirationTime('24h')
+        .setExpirationTime('365d')
         .sign(key)
 
     const cookieStore = await cookies()

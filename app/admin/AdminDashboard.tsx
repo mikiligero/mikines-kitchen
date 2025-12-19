@@ -10,11 +10,12 @@ import { cn } from '@/lib/utils'
 
 interface AdminDashboardProps {
     categories: { id: string; name: string }[]
+    version: string
 }
 
 type Tab = 'categories' | 'backups' | 'maintenance' | 'settings'
 
-export function AdminDashboard({ categories }: AdminDashboardProps) {
+export function AdminDashboard({ categories, version }: AdminDashboardProps) {
     const [activeTab, setActiveTab] = useState<Tab>('categories')
 
     return (
@@ -78,11 +79,16 @@ export function AdminDashboard({ categories }: AdminDashboardProps) {
                             Copias de Seguridad
                         </button>
                     </nav>
+                    <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+                        <p className="text-xs text-center text-zinc-400 dark:text-zinc-500 font-mono">
+                            v{version}
+                        </p>
+                    </div>
                 </div>
-            </aside>
+            </aside >
 
             {/* Content Area */}
-            <main className="flex-1">
+            < main className="flex-1" >
                 <div className="max-w-4xl animate-in fade-in duration-300 slide-in-from-bottom-4">
                     {activeTab === 'categories' && (
                         <div className="space-y-6">
@@ -124,7 +130,7 @@ export function AdminDashboard({ categories }: AdminDashboardProps) {
                         </div>
                     )}
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     )
 }
