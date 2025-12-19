@@ -63,10 +63,10 @@ export function PortionScaler({ initialServings, ingredients, className }: Porti
             <ul className={`space-y-3 ${className}`}>
                 {ingredients.map((ing) => (
                     <li key={ing.id} className="flex items-center justify-between py-2 border-b border-zinc-100 dark:border-zinc-800 last:border-0 group">
-                        <span className="font-medium text-zinc-700 dark:text-zinc-300 flex-1 mr-4">
+                        <span className="font-medium text-zinc-700 dark:text-purple-400 flex-1 mr-4">
                             {ing.name}
                         </span>
-                        <div className="flex items-center gap-1 text-purple-600 font-semibold whitespace-nowrap">
+                        <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-semibold whitespace-nowrap">
                             {ing.amount > 0 ? (
                                 <input
                                     type="number"

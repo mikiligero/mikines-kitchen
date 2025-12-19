@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.8.1] - 2025-12-19
+
+### Tweaks
+-   **Dark Mode**: Updated ingredient text color (name and amount) to light purple (`text-purple-400`) in dark mode for better visibility and aesthetics.
+
 ## [v0.8.0] - 2025-12-19
 
 ### UX Improvements
