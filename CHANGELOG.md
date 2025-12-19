@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.2.1] - 2025-12-19
+
+### Fixes
+-   **Production 403 Error**: Whitelisted `recetas.mikines.es` in `allowedOrigins` to fix Server Action rejections.
+-   **Cropper Form Submission**: Fixed issue where confirming a crop would accidentally save the recipe.
+
 ## [v0.2.0] - 2025-12-19
 
 ### Features
