@@ -1,5 +1,20 @@
 # Changelog
 
+## [v0.4.0] - 2025-12-19
+
+### Features
+-   **Text Resizing**: Added A+/A- text size controls with 3 levels (Normal, Large, Huge).
+    -   Controls located in recipe metadata row for easy access.
+    -   Persistently scales ingredients, instructions, and notes.
+-   **Case-Insensitive Login**: Username login is now case-insensitive (e.g., `Mikines` = `mikines`).
+-   **Unsaved Changes Warning**: Added robust protection against accidental data loss.
+    -   Warns when closing the tab or refreshing.
+    -   Warns when clicking internal links (menu, logo, etc.) if the form is dirty.
+
+### UX Improvements
+-   **Ingredients Header**: Renamed "Ingredientes" to "Ingred." for cleaner mobile display.
+-   **Text Controls Position**: Moved A+/A- controls to the start of the metadata row (left of the date).
+
 ## [v0.3.1] - 2025-12-19
 
 ### Tweaks

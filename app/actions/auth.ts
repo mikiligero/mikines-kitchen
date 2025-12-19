@@ -14,7 +14,13 @@ export async function login(formData: FormData) {
 
     if (!username || !password) return { error: 'Rellena todos los campos' }
 
-    const user = await prisma.user.findUnique({ where: { username } })
+    // SQLite approach for case-insensitive lookup
+    // Note: We need to query raw because Prisma's 'mode: insensitive' doesn't support SQLite
+    const users = await prisma.$queryRaw<Array<{ id: string, username: string, password: string }>>`
+        SELECT * FROM User WHERE LOWER(username) = LOWER(${username}) LIMIT 1
+    `
+    const user = users[0]
+
     if (!user) return { error: 'Credenciales inválidas' }
 
     const isValid = await bcrypt.compare(password, user.password)

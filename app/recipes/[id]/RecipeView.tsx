@@ -18,6 +18,7 @@ export function RecipeView({ recipe }: RecipeViewProps) {
         switch (textSize) {
             case 1: return 'text-lg'
             case 2: return 'text-xl'
+            case 3: return 'text-2xl'
             default: return 'text-base'
         }
     }
@@ -26,6 +27,7 @@ export function RecipeView({ recipe }: RecipeViewProps) {
         switch (textSize) {
             case 1: return 'prose-lg'
             case 2: return 'prose-xl'
+            case 3: return 'prose-2xl'
             default: return 'prose'
         }
     }
@@ -40,27 +42,6 @@ export function RecipeView({ recipe }: RecipeViewProps) {
                     <h1 className="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight flex-1 text-center md:text-left">
                         {recipe.title}
                     </h1>
-
-                    {/* Text Size Controls - Mobile: below title because of flex-col order */}
-                    <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 shrink-0">
-                        <button
-                            onClick={() => setTextSize(Math.max(0, textSize - 1))}
-                            className={`p-2 rounded-md transition-colors ${textSize === 0 ? 'text-zinc-300' : 'hover:bg-white dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200'}`}
-                            disabled={textSize === 0}
-                            title="Disminuir texto"
-                        >
-                            <span className="text-xs font-bold">A-</span>
-                        </button>
-                        <Type size={16} className="text-zinc-400" />
-                        <button
-                            onClick={() => setTextSize(Math.min(2, textSize + 1))}
-                            className={`p-2 rounded-md transition-colors ${textSize === 2 ? 'text-zinc-300' : 'hover:bg-white dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200'}`}
-                            disabled={textSize === 2}
-                            title="Aumentar texto"
-                        >
-                            <span className="text-lg font-bold">A+</span>
-                        </button>
-                    </div>
                 </div>
 
                 {recipe.description && (
@@ -80,9 +61,33 @@ export function RecipeView({ recipe }: RecipeViewProps) {
                     {recipe.cookTime && (
                         <span className="text-sm bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">Cook: {recipe.cookTime}m</span>
                     )}
-                    <div className="flex items-center gap-2 text-sm ml-auto">
-                        <Calendar size={16} />
-                        <span>hace {formatDistanceToNow(recipe.createdAt).replace('about', '')}</span>
+
+                    <div className="flex items-center gap-4 text-sm ml-auto">
+                        {/* Text Size Controls */}
+                        <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 shrink-0">
+                            <button
+                                onClick={() => setTextSize(Math.max(0, textSize - 1))}
+                                className={`p-2 rounded-md transition-colors ${textSize === 0 ? 'text-zinc-300' : 'hover:bg-white dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200'}`}
+                                disabled={textSize === 0}
+                                title="Disminuir texto"
+                            >
+                                <span className="text-xs font-bold">A-</span>
+                            </button>
+                            <Type size={16} className="text-zinc-400" />
+                            <button
+                                onClick={() => setTextSize(Math.min(3, textSize + 1))}
+                                className={`p-2 rounded-md transition-colors ${textSize === 3 ? 'text-zinc-300' : 'hover:bg-white dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200'}`}
+                                disabled={textSize === 3}
+                                title="Aumentar texto"
+                            >
+                                <span className="text-lg font-bold">A+</span>
+                            </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Calendar size={16} />
+                            <span>hace {formatDistanceToNow(recipe.createdAt).replace('about', '')}</span>
+                        </div>
 
                         <div className="flex items-center gap-2 ml-4 border-l pl-4 border-zinc-200 dark:border-zinc-800">
                             <Link href={`/recipes/${recipe.id}/edit`} className="p-2 text-zinc-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors" title="Editar Receta">
@@ -113,12 +118,11 @@ export function RecipeView({ recipe }: RecipeViewProps) {
                 )}
             </div>
 
-            <div className="flex flex-col md:grid md:grid-cols-[1fr_300px] gap-8">
-                {/* Main Content: Instructions & Notes (Order 2 on mobile, 1 on desktop) */}
-                <div className="space-y-8 order-2 md:order-1">
-                    <div className={`prose dark:prose-invert max-w-none ${getProseClass()}`}>
-                        <p className="text-zinc-600 dark:text-zinc-300 leading-relaxed">{recipe.description}</p>
-                    </div>
+            <div className="grid md:grid-cols-[1fr_300px] gap-8">
+                {/* Main Content */}
+                <div className="space-y-8">
+
+                    {/* Duplicate description removed here */}
 
                     <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-800">
                         <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -143,8 +147,8 @@ export function RecipeView({ recipe }: RecipeViewProps) {
                     )}
                 </div>
 
-                {/* Sidebar: Ingredients & Meta (Order 1 on mobile, 2 on desktop) */}
-                <div className="space-y-6 order-1 md:order-2">
+                {/* Sidebar: Ingredients & Meta (Top on mobile, Right on Desktop) */}
+                <div className="space-y-6">
                     <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-800 sticky top-4">
                         <div className="flex items-center gap-2 mb-6 text-zinc-500">
                             <Clock size={20} />

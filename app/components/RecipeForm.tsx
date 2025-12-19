@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createRecipe, updateRecipe, RecipeWithRelations } from '@/app/actions/recipes'
 import { uploadImage } from '@/app/actions/upload'
@@ -61,17 +61,65 @@ export function RecipeForm({ initialData }: RecipeFormProps) {
     const [imageFile, setImageFile] = useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.imagePath ?? null)
 
+    // Dirty state tracking for unsaved changes warning
+    const [isDirty, setIsDirty] = useState(false)
+
+    // Monitor changes to set dirty state
+    useEffect(() => {
+        // Handle browser actions (close tab, refresh, back button)
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isDirty) {
+                e.preventDefault()
+                e.returnValue = ''
+            }
+        }
+
+        // Handle internal navigation (clicking links)
+        const handleAnchorClick = (e: MouseEvent) => {
+            if (!isDirty) return
+
+            const target = e.target as HTMLElement
+            const anchor = target.closest('a')
+
+            if (anchor) {
+                // Ignore new tabs or downloads
+                if (anchor.target === '_blank' || anchor.hasAttribute('download')) return
+
+                // Confirm navigation
+                if (!window.confirm('Tienes cambios sin guardar. ¿Seguro que quieres salir?')) {
+                    e.preventDefault()
+                    e.stopPropagation() // Stop Next.js Link navigation
+                }
+            }
+        }
+
+        window.addEventListener('beforeunload', handleBeforeUnload)
+        window.addEventListener('click', handleAnchorClick, true) // Capture phase to intercept before Next.js
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload)
+            window.removeEventListener('click', handleAnchorClick, true)
+        }
+    }, [isDirty])
+
+    // Detect changes in inputs
+    const handleFormChange = () => {
+        if (!isDirty) setIsDirty(true)
+    }
+
     // Cropper State
     const [showCropper, setShowCropper] = useState(false)
     const [cropImageSrc, setCropImageSrc] = useState<string | null>(null)
 
     const addIngredient = () => {
         setIngredients([...ingredients, { name: '', amount: '', unit: '' }])
+        if (!isDirty) setIsDirty(true)
     }
 
     const removeIngredient = (index: number) => {
         if (ingredients.length > 1) {
             setIngredients(ingredients.filter((_, i) => i !== index))
+            if (!isDirty) setIsDirty(true)
         }
     }
 
@@ -79,10 +127,12 @@ export function RecipeForm({ initialData }: RecipeFormProps) {
         const newIngredients = [...ingredients]
         newIngredients[index][field] = value
         setIngredients(newIngredients)
+        if (!isDirty) setIsDirty(true)
     }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
+            if (!isDirty) setIsDirty(true)
             const file = e.target.files[0]
             const url = URL.createObjectURL(file)
             setCropImageSrc(url)
@@ -252,6 +302,7 @@ export function RecipeForm({ initialData }: RecipeFormProps) {
                             name="title"
                             required
                             defaultValue={initialData?.title}
+                            onChange={handleFormChange}
                             className="w-full p-2 rounded-lg border bg-transparent"
                             placeholder="ej. Tarta de Manzana de la Abuela"
                         />
@@ -261,6 +312,7 @@ export function RecipeForm({ initialData }: RecipeFormProps) {
                         <textarea
                             name="description"
                             defaultValue={initialData?.description || ''}
+                            onChange={handleFormChange}
                             className="w-full p-2 rounded-lg border bg-transparent h-20"
                             placeholder="Una breve historia sobre esta receta..."
                         />
@@ -369,6 +421,7 @@ export function RecipeForm({ initialData }: RecipeFormProps) {
                             name="instructions"
                             required
                             defaultValue={initialData?.instructions}
+                            onChange={handleFormChange}
                             className="w-full p-2 rounded-lg border bg-transparent h-40 font-mono text-sm leading-relaxed"
                             placeholder="Paso 1: Precalentar el horno..."
                         />
@@ -381,6 +434,7 @@ export function RecipeForm({ initialData }: RecipeFormProps) {
                 <textarea
                     name="notes"
                     defaultValue={initialData?.notes || ''}
+                    onChange={handleFormChange}
                     placeholder="Escribe tus trucos o variaciones..."
                     className="w-full p-2 border border-zinc-200 dark:border-zinc-800 rounded-lg dark:bg-zinc-800 min-h-[100px]"
                 />

@@ -23,7 +23,7 @@ export function PortionScaler({ initialServings, ingredients, className }: Porti
     return (
         <div className="bg-zinc-50 dark:bg-zinc-900 rounded-xl p-6 border border-zinc-200 dark:border-zinc-800">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="font-semibold text-lg">Ingredients</h3>
+                <h3 className="font-semibold text-lg">Ingred.</h3>
 
                 <div className="flex items-center gap-3 bg-white dark:bg-black rounded-full border border-zinc-200 dark:border-zinc-800 px-3 py-1">
                     <Users size={16} className="text-zinc-500" />
