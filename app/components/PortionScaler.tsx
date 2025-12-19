@@ -7,9 +7,10 @@ import { Ingredient } from '@prisma/client'
 interface PortionScalerProps {
     initialServings: number
     ingredients: Ingredient[]
+    className?: string
 }
 
-export function PortionScaler({ initialServings, ingredients }: PortionScalerProps) {
+export function PortionScaler({ initialServings, ingredients, className }: PortionScalerProps) {
     const [servings, setServings] = useState(initialServings)
 
     const scale = (amount: number) => {
@@ -44,13 +45,13 @@ export function PortionScaler({ initialServings, ingredients }: PortionScalerPro
                 </div>
             </div>
 
-            <ul className="space-y-3">
+            <ul className={`space-y-3 ${className}`}>
                 {ingredients.map((ing) => (
                     <li key={ing.id} className="flex items-start justify-between py-2 border-b border-zinc-100 dark:border-zinc-800 last:border-0">
                         <span className="font-medium text-zinc-700 dark:text-zinc-300">
                             {ing.name}
                         </span>
-                        <span className="text-purple-600 font-semibold whitespace-nowrap">
+                        <span className="text-purple-600 font-semibold whitespace-nowrap ml-4">
                             {ing.amount > 0 ? scale(ing.amount) : ''} {ing.unit}
                         </span>
                     </li>
@@ -59,3 +60,4 @@ export function PortionScaler({ initialServings, ingredients }: PortionScalerPro
         </div>
     )
 }
+

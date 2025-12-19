@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.3.1] - 2025-12-19
+
+### Tweaks
+-   **Responsive Layout**: Improved mobile layout for better readability.
+    -   Combined title and resizing controls into a single block, with controls below title on mobile.
+    -   Moved Ingredients section to appear **before** Instructions on mobile devices.
+
 ## [v0.3.0] - 2025-12-19
 
 ### Features
