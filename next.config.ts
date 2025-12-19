@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: 536870912, // 512MB in bytes
+      allowedOrigins: ['recetas.mikines.es', 'localhost:3000']
     },
   },
 };
