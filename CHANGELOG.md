@@ -1,0 +1,25 @@
+# Changelog
+
+## [v0.2.0] - 2025-12-19
+
+### Features
+-   **Image Optimization**: Added server-side image compression and resizing using `sharp`.
+    -   Images are converted to WebP.
+    -   Max resolution limited to 1080p.
+    -   Quality compressed to 80%.
+-   **Image Cropping**: Added interactive image cropper during upload.
+    -   Allows zooming and rotating.
+    -   Locks aspect ratio to 16:9.
+-   **Session Extension**: Extended user session duration to 365 days.
+-   **Admin UI**: Added version number display in the admin sidebar.
+
+### Fixes
+-   Fixed bug where cropping confirmation would submit the recipe form.
+
+## [v0.1.0] - 2025-12-14
+
+### Initial Release
+-   Basic recipe management (CRUD).
+-   JSON import/export.
+-   Authentication system.
+-   Theming support.
