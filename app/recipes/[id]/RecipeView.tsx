@@ -118,36 +118,8 @@ export function RecipeView({ recipe }: RecipeViewProps) {
                 )}
             </div>
 
-            <div className="grid md:grid-cols-[1fr_300px] gap-8">
-                {/* Main Content */}
-                <div className="space-y-8">
-
-                    {/* Duplicate description removed here */}
-
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-800">
-                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                            <span className="bg-purple-100 dark:bg-purple-900/30 text-purple-600 p-1.5 rounded-lg">📋</span>
-                            Instrucciones
-                        </h2>
-                        <div className={`space-y-4 text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-line ${getTextClass()}`}>
-                            {recipe.instructions}
-                        </div>
-                    </div>
-
-                    {recipe.notes && (
-                        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-6 shadow-sm border border-amber-200 dark:border-amber-800/50">
-                            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-amber-900 dark:text-amber-100">
-                                <span className="text-amber-600 dark:text-amber-400 text-2xl">📝</span>
-                                Notas del Chef
-                            </h2>
-                            <div className={`space-y-4 text-amber-900/80 dark:text-amber-100/80 leading-relaxed whitespace-pre-line overflow-hidden break-words ${getTextClass()}`}>
-                                {recipe.notes}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Sidebar: Ingredients & Meta (Top on mobile, Right on Desktop) */}
+            <div className="grid md:grid-cols-[300px_1fr] gap-8">
+                {/* Sidebar: Ingredients & Meta (Top on mobile, Left on Desktop) */}
                 <div className="space-y-6">
                     <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-800 sticky top-4">
                         <div className="flex items-center gap-2 mb-6 text-zinc-500">
@@ -185,6 +157,34 @@ export function RecipeView({ recipe }: RecipeViewProps) {
                             </div>
                         )}
                     </div>
+                </div>
+
+                {/* Main Content */}
+                <div className="space-y-8">
+
+                    {/* Duplicate description removed here */}
+
+                    <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-800">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                            <span className="bg-purple-100 dark:bg-purple-900/30 text-purple-600 p-1.5 rounded-lg">📋</span>
+                            Instrucciones
+                        </h2>
+                        <div className={`space-y-4 text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-line ${getTextClass()}`}>
+                            {recipe.instructions}
+                        </div>
+                    </div>
+
+                    {recipe.notes && (
+                        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-6 shadow-sm border border-amber-200 dark:border-amber-800/50">
+                            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-amber-900 dark:text-amber-100">
+                                <span className="text-amber-600 dark:text-amber-400 text-2xl">📝</span>
+                                Notas del Chef
+                            </h2>
+                            <div className={`space-y-4 text-amber-900/80 dark:text-amber-100/80 leading-relaxed whitespace-pre-line overflow-hidden break-words ${getTextClass()}`}>
+                                {recipe.notes}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </article>

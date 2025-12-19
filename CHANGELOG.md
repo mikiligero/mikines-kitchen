@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.8.0] - 2025-12-19
+
+### UX Improvements
+-   **Column Reordering**: Swapped "Preparation" and "Ingredients" columns in the individual recipe view.
+    -   Ingredients now appear on the left (desktop) to align with common reading patterns.
+    -   On mobile, Ingredients consistently appear before Instructions.
+
 ## [v0.7.0] - 2025-12-19
 
 ### Features
