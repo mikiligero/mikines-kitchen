@@ -414,22 +414,40 @@ export function RecipeForm({ initialData }: RecipeFormProps) {
                 </div>
 
                 {imageMode === 'upload' ? (
-                    <div className="relative aspect-video rounded-xl bg-zinc-100 dark:bg-zinc-800 overflow-hidden border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-purple-500 transition-colors group">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                        />
-                        {previewUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={previewUrl} alt="Vista previa" className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="flex flex-col items-center justify-center w-full h-full text-zinc-400 group-hover:text-purple-500 transition-colors">
-                                <Upload size={32} className="mb-2" />
-                                <span className="text-sm font-medium">Haz clic para subir foto</span>
-                            </div>
-                        )}
+                    <div className="space-y-4">
+                        {/* Standard File Input Area */}
+                        <div className="relative aspect-video rounded-xl bg-zinc-100 dark:bg-zinc-800 overflow-hidden border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-purple-500 transition-colors group">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            />
+                            {previewUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={previewUrl} alt="Vista previa" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="flex flex-col items-center justify-center w-full h-full text-zinc-400 group-hover:text-purple-500 transition-colors">
+                                    <Upload size={32} className="mb-2" />
+                                    <span className="text-sm font-medium">Haz clic para subir foto</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Mobile Camera Button - hidden on desktop via CSS if desired, or always visible */}
+                        <div className="flex justify-center md:hidden">
+                            <label className="flex items-center gap-2 px-4 py-3 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl font-medium cursor-pointer active:scale-95 transition-transform w-full justify-center">
+                                <span className="text-xl">📷</span>
+                                <span>Hacer Foto</span>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    onChange={handleImageChange}
+                                    className="hidden"
+                                />
+                            </label>
+                        </div>
                     </div>
                 ) : (
                     <div className="space-y-4">

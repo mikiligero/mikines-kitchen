@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.3.0] - 2025-12-19
+
+### Features
+-   **Mobile Camera Integration**: Added a dedicated "Take Photo" button on mobile devices that directly opens the camera.
+    -   Seamlessly integrates with the image cropper and optimization flow.
+    -   Uses `capture="environment"` to default to the rear camera.
+
 ## [v0.2.1] - 2025-12-19
 
 ### Fixes
