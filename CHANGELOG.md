@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.4.1] - 2025-12-19
+
+### Features
+-   **iOS Home Screen Icon**: Added support for "Add to Home Screen" on iPhone/iPad using the app logo.
+
 ## [v0.4.0] - 2025-12-19
 
 ### Features
