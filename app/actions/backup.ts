@@ -51,7 +51,7 @@ export async function restoreBackupFromZip(formData: FormData) {
 export async function performRestoreFromZip(buffer: Buffer, onProgress?: (message: string) => void) {
     const log = (msg: string) => {
         if (onProgress) onProgress(msg)
-        console.log(`[Restore] ${msg}`)
+
     }
 
     log('Iniciando proceso de restauración...')

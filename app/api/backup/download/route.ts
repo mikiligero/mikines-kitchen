@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
             }
         } catch (error) {
             // If uploads dir doesn't exist, just verify empty/skip
-            console.log("No uploads directory found or error reading it:", error)
+
         }
 
         const buffer = zip.toBuffer()

@@ -22,17 +22,18 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
   // Let's check my previous edit to `actions/recipes.ts`.
   // Yes, I updated both branches.
 
-  const { recipes, metadata } = await getRecipes({
-    query: q,
-    category,
-    time,
-    sort,
-    rating,
-    page: currentPage,
-    limit: 50
-  })
-
-  const categories = await getCategories()
+  const [{ recipes, metadata }, categories] = await Promise.all([
+    getRecipes({
+      query: q,
+      category,
+      time,
+      sort,
+      rating,
+      page: currentPage,
+      limit: 50
+    }),
+    getCategories()
+  ])
 
   const currentView = (view as ViewMode) || 'grid-md'
 
