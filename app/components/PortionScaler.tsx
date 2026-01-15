@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Users, Minus, Plus } from 'lucide-react'
 import { Ingredient } from '@prisma/client'
+import { getGramEquivalent } from '@/lib/unitConversion'
 
 interface PortionScalerProps {
     initialServings: number
@@ -78,7 +79,14 @@ export function PortionScaler({ initialServings, ingredients, className }: Porti
                                     onClick={(e) => e.currentTarget.select()}
                                 />
                             ) : null}
-                            <span>{ing.unit}</span>
+                            <div className="flex flex-col items-start leading-none ml-1">
+                                <span>{ing.unit}</span>
+                                {getGramEquivalent(ing.name, scale(ing.amount), ing.unit) && (
+                                    <span className="text-base text-purple-700 dark:text-purple-400 font-bold mt-1">
+                                        {getGramEquivalent(ing.name, scale(ing.amount), ing.unit)}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </li>
                 ))}
@@ -86,4 +94,3 @@ export function PortionScaler({ initialServings, ingredients, className }: Porti
         </div>
     )
 }
-
