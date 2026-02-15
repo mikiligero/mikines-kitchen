@@ -5,6 +5,12 @@ export function getGramEquivalent(name: string, amount: number, unit: string): s
 
     // Check if unit is cup-like
     // Includes standard abbreviations and Spanish/English terms
+    // Check if unit is ounce-like
+    const ounceUnits = ['oz', 'ounce', 'onzas', 'onza']
+    if (ounceUnits.includes(u)) {
+        return `(~${Math.round(amount * 28.35)}g)`
+    }
+
     const cupUnits = ['cup', 'cups', 'taza', 'tazas', 'c', 'tza', 'tz']
     if (!cupUnits.includes(u)) {
         return null
